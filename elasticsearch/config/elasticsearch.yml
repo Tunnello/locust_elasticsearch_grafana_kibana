@@ -1,0 +1,73 @@
+################################### Cluster ################################### 
+# 代表一个集群,集群中有多个节点,其中有一个为主节点,这个主节点是可以通过选举产生的,主从节点是对于集群内部来说的. 
+# es的一个概念就是去中心化,字面上理解就是无中心节点,这是对于集群外部来说的,因为从外部来看es集群,在逻辑上是个整体,你与任何一个节点的通信和与整个es集群通信是等价的。 
+# cluster.name可以确定你的集群名称,当你的elasticsearch集群在同一个网段中elasticsearch会自动的找到具有相同cluster.name的elasticsearch服务. 
+# 所以当同一个网段具有多个elasticsearch集群时cluster.name就成为同一个集群的标识. 
+cluster.name: "locust-es"
+
+
+#################################### Node ##################################### 
+# https://www.elastic.co/guide/en/elasticsearch/reference/5.1/modules-node.html#master-node
+# 节点名称同理,可自动生成也可手动配置. 
+node.name: node-1
+# 允许一个节点是否可以成为一个master节点,es是默认集群中的第一台机器为master,如果这台机器停止就会重新选举master. 
+# node.master: true 
+# 允许该节点存储数据(默认开启) 
+# node.data: true 
+# 配置文件中给出了三种配置高性能集群拓扑结构的模式,如下： 
+# 1. 如果你想让节点从不选举为主节点,只用来存储数据,可作为负载器 
+# node.master: false 
+# node.data: true 
+# node.ingest: false
+# 2. 如果想让节点成为主节点,且不存储任何数据,并保有空闲资源,可作为协调器 
+# node.master: true 
+# node.data: false
+# node.ingest: false 
+# 3. 如果想让节点既不称为主节点,又不成为数据节点,那么可将他作为搜索器,从节点中获取数据,生成搜索结果等 
+# node.master: false 
+# node.data: false 
+# node.ingest: true (可不指定默认开启)
+# 4. 仅作为协调器 
+# node.master: false 
+# node.data: false
+# node.ingest: false
+
+
+#################### 使用head等插件监控集群信息，需要打开以下配置项 ###########
+# 允许跨域访问
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+# http.cors.allow-credentials: true
+
+
+#################################### Index #################################### 
+# 注意，此处不能有，否则报错：Node settings must not contain any index level setting
+# https://www.geek-share.com/detail/2732993883.html
+
+# 设置索引的分片数,默认为3
+#index.number_of_shards: 3
+# 设置索引的副本数,默认为1:
+#index.number_of_replicas: 1
+# 配置文件中提到的最佳实践是,如果服务器够多,可以将分片提高,尽量将数据平均分布到大集群中去
+# 同时,如果增加副本数量可以有效的提高搜索性能 
+# 需要注意的是,"number_of_shards" 是索引创建后一次生成的,后续不可更改设置 
+# "number_of_replicas" 可以通过API去实时修改设置
+
+
+############################## Network And HTTP ############################### 
+# 设置绑定的ip地址,可以是ipv4或ipv6的,默认为0.0.0.0 
+# network.bind_host: 192.168.0.1 
+# 设置其它节点和该节点交互的ip地址,如果不设置它会自动设置,值必须是个真实的ip地址 
+# network.publish_host: 192.168.0.1 
+# 同时设置bind_host和publish_host上面两个参数 
+network.host: 0.0.0.0
+# 设置节点间交互的tcp端口,默认是9300 
+# transport.tcp.port: 9300 
+# 设置是否压缩tcp传输时的数据，默认为false,不压缩
+# transport.tcp.compress: true 
+# 设置对外服务的http端口,默认为9200 
+# http.port: 9200 
+# 设置请求内容的最大容量,默认100mb 
+# http.max_content_length: 100mb 
+# 使用http协议对外提供服务,默认为true,开启 
+# http.enabled: false 

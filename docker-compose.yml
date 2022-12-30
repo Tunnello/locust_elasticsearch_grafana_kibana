@@ -1,0 +1,76 @@
+# version: '1'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:7.16.1
+    ports:
+      - "9200:9200"
+    volumes:
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - ./elasticsearch/data:/usr/share/elasticsearch/data:rw
+      - ./elasticsearch/plugins:/usr/share/elasticsearch/plugins:rw
+      - ./elasticsearch/logs:/usr/share/elasticsearch/logs:rw
+    environment:
+      - "ES_JAVA_OPTS=-Xms64m -Xmx512m"
+      - "discovery.type=single-node"
+      - "COMPOSE_PROJECT_NAME=elasticsearch-server"
+    restart: always
+    
+  es-head:
+    container_name: elasticsearch-head
+    image: mobz/elasticsearch-head:5
+    network_mode: host
+    restart: always
+    #volumes:
+    #  - ./headdata:/usr/src/app/_site
+    ports:
+      - 9100:9100
+      
+  elastichd:
+    container_name: elastichd
+    image: happylay/elastichd:1.4.1
+    restart: always
+    network_mode: host
+    ports:
+      - 9800:9800
+      
+  es-dejavu:
+    container_name: dejavu-es
+    image: appbaseio/dejavu
+    restart: always
+    network_mode: host
+    ports:
+      - 1358:1358
+    
+  grafana:
+    container_name: grafana-es
+    image: grafana/grafana:8.4.1
+    volumes:
+      - ./grafana/config/defaults.ini:/usr/share/grafana/conf/defaults.ini
+    #  - ./grafana/config/provisioning/datasources:/usr/share/grafana/conf/provisioning/datasources:rw
+    #  - ./grafana/config/provisioning/dashboards:/usr/share/grafana/conf/provisioning/dashboards:rw
+    #environment:
+    #    GF_RENDERING_SERVER_URL: http://localhost:8081/render
+    #    GF_RENDERING_CALLBACK_URL: http://localhost:3000/
+    #    GF_LOG_FILTERS: rendering:debug
+    #    GF_USERS_ALLOW_SIGN_UP: "false"
+    #    GF_AUTH_DISABLE_LOGIN_FORM: "true"
+    #    GF_AUTH_DISABLE_SIGNOUT_MENU: "true"
+    #    GF_AUTH_ANONYMOUS_ENABLED: "true"
+    #    GF_AUTH_ANONYMOUS_ORG_ROLE: "Admin"
+    ports:
+      - "3000:3000"
+    network_mode: "host"
+    restart: always
+  
+  # https://hub.docker.com/r/bitnami/kibana
+  kibana:
+    image: bitnami/kibana:7.16.1
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
+    volumes:
+      - ./kibana:/bitnami/kibana:rw
